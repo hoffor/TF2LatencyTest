@@ -1,0 +1,3 @@
+purpose: find out how many times a second we can detect a change in color on different setups
+
+unzip and install those materials and join colorbox.bsp map and a team/class, then press +right and run the script

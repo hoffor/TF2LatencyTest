@@ -1,11 +1,10 @@
-notes n todo
+notes n todo (yea maybe i'll adapt to the github issues way of doing things... eventually)
 -------------
 
 
 todo:
 
-- update readme
-    - explain difference between win7 w/o aero  vs  win7 on win98 mode
+- 
 
 
 

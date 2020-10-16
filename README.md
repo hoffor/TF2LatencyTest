@@ -1,6 +1,6 @@
 # TF2 Latency Test
 
-Compatible with Windows 7 and 10
+Compatible with Windows 7 and 10, Win7 preferred (read on for info)
 
 TF2 Latency Test is an AutoHotkey script + TF2 map that tests for and generates a report containing 'input-to-frame' latency values for Team Fortress 2, accurate to 1ms.
 

@@ -4,35 +4,32 @@ notes n todo (yea maybe i'll adapt to the github issues way of doing things... e
 
 todo:
 
-- 
-
-
-
-maybe later:
-
-- test mouse_event + A_Cursor for latency vs real mouse
-
-- include colorbox.bsp/.vmf and "pixelgetcolor effective rate.ahk" in a /tools dir for the repo
-
-- consider giving the option to enable faster system timer during test. test latencies and performance with it on
-
-- consider modifying instructions on disabling dc to be more like "disable dc only without messing up themes n doing win98"
-
-- update readme about how to access win10 power options
-
 - do fileexist for all configs before running them in cvarreversion / delete reversion file after exec so no accidental 2nd run revert with a bad file
 
 - gosub,exitsub isn't working for the msgboxes inside cvar reversion wtf
 
 - sv_cheats needs to be on while reverting
 
-- actually consider making a script to force kill dwm.....
+slightly less important:
 
-- turn dot white somehow in case that allows us to compile with hdr (hdr bleeds color and screws up pixel color detection)
+- test mouse_event + A_Cursor for latency vs real mouse
+
+- turn dot white somehow in case that allows us to compile with hdr (hdr bleeds color and screws up pixel color detection). may need to use ambiguous string comparison for less precise color detection eg. 0xE0* vs 0xE07E08
+
+
+
+maybe later:
+
 
 - dynamically record and replay a demo of the scene and get timedemo fps (don't record while latency testing)
 
 - before spreadsheet creation, see if user has mods in /custom. consider grabbing video cvars
+
+- consider giving the option to enable faster system timer during test. test latencies and performance with it on
+
+- update readme about how to access win10 power options
+
+- actually consider making a script to force kill dwm.....
 
 - maybe present options to automate the switching of windows performance options, generally find ways to make everything easier for users
 
@@ -46,9 +43,12 @@ maybe later:
 
 HAMMER NOTES:
 
-if player spawns are screwed up / scouts want to fall through the floor or spawn inside walls, set their floor to the 'invisible' tool texture and make a new floor below that non-solid with func_brush. you can make the 'invisible' floor not cast/recieve shadows with func_brush as well, but keep it solid ofc. only make these 2 floors func_brush and all others func_detail, since func_brush has more engine overhead and doesn't always act as a traditional brush (eg. stickies bounce off)
+fixed but might as well include: if player spawns are screwed up / scouts want to fall through the floor or spawn inside walls, set their floor to the 'invisible' tool texture and make a new floor below that non-solid with func_brush. you can make the 'invisible' floor not cast/recieve shadows with func_brush as well, but keep it solid ofc. only make these 2 floors func_brush and all others func_detail, since func_brush has more engine overhead and doesn't always act as a traditional brush (eg. stickies bounce off)
 
-note: i am not currently compiling with hdr because it breaks the script, here are old but mostly good notes:
+---
+
+map compile instructions:
+note: i am not currently compiling with hdr because it breaks the script's pixelgetcolor detection. most of these steps are still relevant:
 compile map using either Full or Final +HDR (i'm using Batch Compile Tool with VVIS & VRAD on low priority)
 if you're going to rename the map, do it before compiling
 once done, build cubemaps:
@@ -74,10 +74,10 @@ THIS IS THE ONLY WAY TO COPY PROPERLY: to copy values, ensure all cells in sourc
 --------
 
 
-pixelgetcolor & windows 10 notes:
+pixelgetcolor/gdip & windows 10 notes:
 
 
-find pixelgetcolor & gdip effective rates: create a room in tf2 lined with dense color spectrum thingies and have the player do +right. then measure how many times a second pixelgetcolor/gdip detects a change in color
+find pixelgetcolor & gdip effective rates (method is now included in /tools): create a room in tf2 lined with dense color spectrum thingies and have the player do +right. then measure how many times a second pixelgetcolor/gdip detects a change in color
 
 so, win10 pixelgetcolor is 30KHz but ONLY when no window is focused (click the taskbar). engine_no_focus_sleep 0 allows tf2 to run fine without focus
 
@@ -85,4 +85,4 @@ results: win7 pixelgetcolor reports 1000-1029fps when fps is uncapped. let's see
 
 fullscreen optimizations allows us to use pixelgetcolor and gdip in fullscreen, but still at a max of 60fps. gdip does not work any faster than pixelgetcolor in win10, max of 60fps
 
-so even at 60fps, readings really aren't that bad tbh. i think up to and additonal 30% of the ms result sounds bad, but doesn't look too bad and is still workable. you could make valid conclusions from that data about your game's performance. 11ms -> 17ms, not so bad. 50ms -> 64ms, not so bad. same ballpark.
+so even at 60fps, readings really aren't that bad tbh. i think up to an additonal 30% of the ms result sounds bad, but doesn't look too bad and is still workable. you could make valid conclusions from that data about your game's performance. 11ms -> 17ms, not so bad. 50ms -> 64ms, not so bad. same ballpark.

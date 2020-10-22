@@ -36,39 +36,27 @@ if ("WIN_7" != OSVersion := A_OSVersion) {
 	win10note := "NOTE: System is not running Windows 7, so visual styles and desktop composition cannot be disabled. This means results can be up to 40% (avg ~28%) higher than the values you'd get in Win7. Regardless of how bad that sounds, they should still be good 'ballpark' estimates of your game's performance.`n`n"
 	msgbox,1,% "TF2 Latency Test",% win10note "For more info, view the README."
 	ifmsgbox,Cancel
-	{
-		msgbox,,% "TF2 Latency Test",% "Exiting script...",2
-		gosub,ExitSub
-	}
+		Goodbye()
 } else {
 	OSVersion := "Windows 7"
 	if (DllCall("Dwmapi\DwmIsCompositionEnabled", "Int*", dcState) = 0) {
 		if (dcState > 0) {
 			msgbox,1,% "TF2 Latency Test",% "Warning: On Windows 7, desktop composition must be disabled for script stability. Please view the README. For a genuinely terrible and inaccurate experience, press OK"
 			ifmsgbox,Cancel
-			{
-				msgbox,,% "TF2 Latency Test",% "Exiting script...",2
-				gosub,ExitSub
-			}
+				Goodbye("Exiting script...","exit")
 		} else {
 			SysGet,titleButtonX,30
 			SysGet,titleButtonY,31
 			if (titleButtonX != titleButtonY) { ; if not windows 98 mode (square buttons)
 				msgbox,1,% "TF2 Latency Test",% "Note: On Windows 7, visual styles, effects and animations will somewhat affect consistency of the results. Please view the README."
 				ifmsgbox,Cancel
-				{
-					msgbox,,% "TF2 Latency Test",% "Exiting script...",2
-					gosub,ExitSub
-				}
+					Goodbye("Exiting script...","exit")
 			}
 		}
 	} else {
 		msgbox,1,% "TF2 Latency Test",% "Can't get the current state of desktop composition... regardless, just be sure you've read the README and that desktop composition AND visual styles are disabled for good results."
 		ifmsgbox,Cancel
-		{
-			msgbox,,% "TF2 Latency Test",% "Exiting script...",2
-			gosub,ExitSub
-		}
+			Goodbye("Exiting script...","exit")
 	}
 }
 
@@ -98,10 +86,7 @@ if (currentClock != "" && maxClock != "") {
 	if (currentClock <= maxClock * 0.98) {
 		msgbox,1,% "TF2 Latency Test", % "Warning: CPU clock speed appears to be much lower than its max. For best performance set your Windows power plan to High Performance or equivalent."
 		ifmsgbox,Cancel
-		{
-			msgbox,,% "TF2 Latency Test",% "Exiting script...",2
-			gosub,ExitSub
-		}
+			Goodbye("Exiting script...","exit")
 	}
 }
 
@@ -110,10 +95,7 @@ if (currentClock != "" && maxClock != "") {
 
 msgbox,1,% "TF2 Latency Test",% "TF2 Latency Test v" . version . " (github.com/hoffersrc/tf2-latency-test)`n`nBe sure to have read the README's instructions prior to running the test. Once TF2 is running and fully loaded in, press OK and then click into the game window to start and connect to the test map.`n`nTime estimate: 10 iterations = ~25sec"
 ifmsgbox,Cancel
-{
-	msgbox,,% "TF2 Latency Test",% "Exiting script...",2
-	gosub,ExitSub
-}
+	Goodbye("Exiting script...","exit")
 Menu,Tray,Icon
 gosub,LatencyTest
 return
@@ -140,14 +122,11 @@ LatencyTest:
 	appDetectTs := TS()
 	detectmsg := 1
 	while (windowName != "Team Fortress 2" || gamePath = "") {
-		if (detectmsg = 1 && (TS() - appDetectTs >= 8000)) {
+		if (detectmsg = 1 && (TS() - appDetectTs >= 4000)) {
 			detectmsg := 0
 			msgbox,1,% "TF2 Latency Test",% "Problem finding game window or process. Be sure to click into the window. Waiting..."
 			ifmsgbox,Cancel
-			{
-				msgbox,,% "TF2 Latency Test",% "Exiting script...",2
-				gosub,ExitSub
-			}
+				Goodbye("Exiting script...","exit")
 		}
 		; using active window pid before getting its path allows to distinguish btwn any concurrent/sandboxed instances
 		WinGet,processID,PID,A
@@ -188,35 +167,40 @@ LatencyTest:
 	runwait,% "hl2.exe -hijack +map latency_test",% gamePath . "\",Hide
 	
 	Menu,Tray,NoIcon
-	; we COULD monitor conlog for team join / status info, but...
 	msgbox,1,% "TF2 Latency Test",% "Please be patient while the script is connecting you to the single player test map (it may appear stuck on main menu or frozen up but it'll get there)`n`nDuring the test strafing will be locked, mouse-look camera will routinely toggle on/off and the game scoreboard will flash.`n`nKeep your mouse in constant motion at a moderately fast pace (eg. circle, up and down, etc)`n`nPress CTRL+SHIFT+P if you want to prematurely stop the test. You may need to spam the hotkey for it to work.`n`nNow, press OK and join RED team with any class, and once you're able to control your character's mouse-look camera the test will start."
 	ifmsgbox,Cancel
-	{
-		msgbox,,% "TF2 Latency Test",% "Exiting script...",2
-		gosub,ExitSub
-	}
+		Goodbye("Exiting script...","exit")
 	Menu,Tray,Icon
 	
 	Hotkey,^+p,PlzExit,On
-	while (A_Cursor != "Unknown") {
+	sleep,3000
+	ts1 := TS()
+	while ((0 = WinActive("ahk_pid" processID))
+	|| (0 != WinActive("ahk_pid" processID) && A_Cursor != "Unknown"))
+	{
 		sleep,1000
+		if ((TS() - ts1 >= 12000) || A_Index = 1) {
+			ts1 := TS()
+			TrayTip,% "TF2 Latency Test",% "Player is not controllable. Be sure to click into the window. Waiting...`nDetails:`nCursor: " A_Cursor "  |  Window: " WinActive("ahk_pid" processID)
+		}
 	}
+	TrayTip
 	
 	; load latency cfg again in case user has combative class cfg / per slot cfg
 	runwait,% "hl2.exe -hijack +exec latencytest",% gamePath . "\",Hide
 	sleep,250
 	
-	while ((0 != WinActive(ahk_pid processID)) && (A_Cursor != "Unknown")) {
-		if (A_Index = 1) {
-			msgbox,1,% "TF2 Latency Test",% "Player is not controllable. Be sure to click into the window. Waiting..."
-			ifmsgbox,Cancel
-			{
-				msgbox,,% "TF2 Latency Test",% "Exiting script...",2
-				gosub,ExitSub
-			}
+	ts1 := TS()
+	while ((0 = WinActive("ahk_pid" processID))
+	|| (0 != WinActive("ahk_pid" processID) && A_Cursor != "Unknown"))
+	{
+		sleep,1000
+		if ((TS() - ts1 >= 12000) || A_Index = 1) {
+			ts1 := TS()
+			TrayTip,% "TF2 Latency Test",% "Player is not controllable. Be sure to click into the window. Waiting...`nDetails:`nCursor: " A_Cursor "  |  Window: " WinActive("ahk_pid" processID)
 		}
-		sleep 500
 	}
+	TrayTip
 	
 	sendinput,i ; tf_bot_kick all in case user had tf_bots earlier
 	sleep,50
@@ -233,21 +217,32 @@ LatencyTest:
 	
 	resupCounter := 0
 	loopMax := 10 ; number of results to get
+	
+	; temp fix to ensure buggy infinite test loops don't confuse/exhaust user :c
+	consecFails1 := consecFails2 := consecFails3 := consecFails4 := 0
+	
 	loop % loopMax {
 		
 		LoopStart:
 		
-		while ((0 != WinActive(ahk_pid processID)) && (A_Cursor != "Unknown")) {
-			if (A_Index = 1) {
-				msgbox,1,% "TF2 Latency Test",% "Player is not controllable. Be sure to click into the window. Waiting..."
-				ifmsgbox,Cancel
-				{
-					msgbox,,% "TF2 Latency Test",% "Exiting script...",2
-					gosub,ExitSub
-				}
-			}
-			sleep 500
+		if (consecFails1 + consecFails2 + consecFails3 + consecFails4 >= 8) {
+			msgbox,1,% "TF2 Latency Test",% "Error: Too many consecutive test loop fails.`n" consecFails1 " " consecFails2 " " consecFails3 " " consecFails4 "`nPlease send these numbers to the dev!`nYou may attempt to continue, but it's likely it will loop infinitely. If it doesn't, also notify the dev :)"
+			ifmsgbox,Cancel
+				Goodbye("Exiting script...","exit")
+			consecFails1 := consecFails2 := consecFails3 := consecFails4 := 0
 		}
+		
+		ts1 := TS()
+		while ((0 = WinActive("ahk_pid" processID))
+		|| (0 != WinActive("ahk_pid" processID) && A_Cursor != "Unknown"))
+		{
+			sleep,1000
+			if ((TS() - ts1 >= 12000) || A_Index = 1) {
+				ts1 := TS()
+				TrayTip,% "TF2 Latency Test",% "Player is not controllable. Be sure to click into the window. Waiting...`nDetails:`nCursor: " A_Cursor "  |  Window: " WinActive("ahk_pid" processID)
+			}
+		}
+		TrayTip
 		
 		gotmouse := 0
 		sendinput,x ; sens 0
@@ -288,14 +283,16 @@ LatencyTest:
 		sendinput,y ; bot_mimic 1 (was disabled cuz we want bots to have slot1, not slot3)
 		
 		; ensure the dot is centered in frame
-		loop {
-			PixelGetColor,color,% tf2W_Half,% tf2H_Half,RGB
-			if (color = "0x000000")
-				break
-			else
-				goto,LoopStart
-		}
-
+		PixelGetColor,color,% tf2W_Half,% tf2H_Half,RGB
+		if (color != "0x000000") {
+			++consecFails1
+			goto,LoopStart
+		} else
+			consecFails1 := 0
+		
+		if (A_Index = 1) ; temp workaround for scouts not moving properly on first loop. no idea y, recent issue
+			sleep,3000
+		
 		; get scouts in bottom left corner of their baby jails
 		sendinput,{a down}{s down}
 		sleep,200
@@ -354,8 +351,11 @@ LatencyTest:
 			if (A_Cursor = "Unknown") ; on the instant that cursor mode indicates that character view is movable
 				break
 			; NOTE: we're discarding potential 150ms+ samples by doing this, but those are very unlikely
-			if (ts1 - sampleTs > 150)
+			if (ts1 - sampleTs > 150) {
+				++consecFails2
 				goto,LoopStart
+			} else
+				consecFails2 := 0
 		}
 		loop 300 { ; if mouse is in fact moving
 			; 1/2 samples will likely take 100-300 loops to catch mouse
@@ -365,16 +365,22 @@ LatencyTest:
 			if (OutputVarX != tf2W_Half || OutputVarY != tf2H_Half)
 				gotmouse := 1
 			if (A_Index = 300) {
-				if (gotmouse = 0)
+				if (gotmouse = 0) {
+					++consecFails3
 					goto,LoopStart
-				else
+				} else {
+					consecFails3 := 0
 					break ; enforce 300 loops always for consistent per-user data at the expense of minus ~0.2 - 0.4ms
+				}
 			}
 		}
 		loop {
 			PixelGetColor,color,% tf2W_Half,% tf2H_Half,RGB
-			if (150 < (td := (TS() - ts1)))
+			if (150 < (td := (TS() - ts1))) {
+				++consecFails4
 				goto,LoopStart
+			} else
+				consecFails4 := 0
 			if (color != "0x000000" && color != scoreboardDotColor) {
 				colorIndex := A_Index
 				break ; success
@@ -486,20 +492,14 @@ CvarReversionSetup:
 			if (cvarInit[A_Index] = "" || cvarInit[A_Index] != "version") { ; version will always be first line in cfg
 				msgbox,1,% "TF2 Latency Test",% "Cannot set up CVAR reversion system, proceed to alter cvars?`nError: our cfg cvar name values are not as expected"
 				ifmsgbox,Cancel
-				{
-					msgbox,,% "TF2 Latency Test",% "Exiting script...",2
-					gosub,ExitSub
-				}
+					Goodbye("Exiting script...","exit")
 				return
 			}
 		}
 		if (cvarInit[A_Index] = "") {
 			msgbox,1,% "TF2 Latency Test",% "Cannot set up CVAR reversion system, proceed to alter cvars?`nError: our cfg cvar name values are not as expected"
 			ifmsgbox,Cancel
-			{
-				msgbox,,% "TF2 Latency Test",% "Exiting script...",2
-				gosub,ExitSub
-			}
+				Goodbye("Exiting script...","exit")
 			return
 		}
 	}
@@ -554,10 +554,7 @@ CvarReversionSetup:
 		if (ErrorLevel != 0) {
 			msgbox,1,% "TF2 Latency Test",% "Cannot set up CVAR reversion system, proceed to alter cvars?`nError: console log file is locked. To fix, set cvar ""con_logfile"" to """", then delete:`n" conlogFullPath "`nand reload the script."
 			ifmsgbox,Cancel
-			{
-				msgbox,,% "TF2 Latency Test",% "Exiting script...",2
-				gosub,ExitSub
-			}
+				Goodbye("Exiting script...","exit")
 			return
 		}
 	}
@@ -623,18 +620,12 @@ CvarReversionSetup:
 		if (ErrorLevel != 0) {
 			msgbox,1,% "TF2 Latency Test",% "Cannot set up CVAR reversion system, proceed to alter cvars?`nError: conlog file cannot be recycled. ErrorLevel: " ErrorLevel "`n" conlogFullPath
 			ifmsgbox,Cancel
-			{
-				msgbox,,% "TF2 Latency Test",% "Exiting script...",2
-				gosub,ExitSub
-			}
+				Goodbye("Exiting script...","exit")
 		}
 	} else { ; yes i actually need this message
 		msgbox,1,% "TF2 Latency Test",% "CVAR Reversion Warning: conlog has been utilized and now should be deleted, but does not appear to exist."
 		ifmsgbox,Cancel
-		{
-			msgbox,,% "TF2 Latency Test",% "Exiting script...",2
-			gosub,ExitSub
-		}
+			Goodbye("Exiting script...","exit")
 	}
 
 	; verify data
@@ -645,14 +636,12 @@ CvarReversionSetup:
 			maxval := cvarInit.MaxIndex()
 	}
 	; if one array > the other, that's likely bad but we should compare elems anyway
-	loop % maxval
+	loop % maxval {
 		if (cvarInitValueName[A_Index] != cvarInit[A_Index])
 			msgbox,1,% "TF2 Latency Test",% "Cannot set up CVAR reversion system, proceed to alter cvars?`nError: CVAR: """ cvarInitValueName[A_Index] """ does not match """ cvarInit[A_Index] """`nArrays have " cvarInitValueName.MaxIndex() " & " cvarInit.MaxIndex() " elements"
-			ifmsgbox,Cancel
-			{
-				msgbox,,% "TF2 Latency Test",% "Exiting script...",2
-				gosub,ExitSub
-			}
+		ifmsgbox,Cancel
+			Goodbye("Exiting script...","exit")
+	}
 
 
 	; writeconfig reliably records binds, less work for us
@@ -675,13 +664,11 @@ CvarReversionSetup:
 		if (cvarInit[A_Index] = "version") {
 			versionBuild := cvarInitValue[A_Index]
 			break
-		} else
+		} else {
 			msgbox,1,% "TF2 Latency Test",% "failed to get game build label from cvar: ""version"". continuing anyway..."
 			ifmsgbox,Cancel
-			{
-				msgbox,,% "TF2 Latency Test",% "Exiting script...",2
-				gosub,ExitSub
-			}
+				Goodbye("Exiting script...","exit")
+		}
 	}
 	gameVersion := versionType . " - " . versionBuild
 
@@ -713,4 +700,30 @@ return
 TS() {
 	DllCall("GetSystemTimeAsFileTime","Int64P",T1601)
 	Return (T1601 // 10000)
+}
+
+
+
+Goodbye(errmsg:="", action:="exit") {
+	errbl := A_BatchLines
+	Critical,On
+	setbatchlines,% errbl
+	if (action = "exit") {
+		MsgBox,,% "TF2 Latency Test",% errmsg,2
+		exitapp
+		Goodbye("Script not exiting, terminating...","terminate")
+	}
+	; skips the exit sub/func
+	if (action = "terminate") {
+		SoundPlay,*16
+		MsgBox,,% "TF2 Latency Test",% errmsg,2
+		Process,Close,% DllCall("GetCurrentProcessId")
+		suspend
+		MsgBox,,% "Goodbye",% "Script process not terminating, suspending",2
+		DllCall("ntdll.dll\NtSuspendProcess", "Int"
+		, DllCall("OpenProcess", "UInt", 0x1F0FFF, "Int", 0, "Int"
+		, DllCall("GetCurrentProcessId")))
+		pause
+	}
+	return
 }

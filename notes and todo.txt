@@ -4,9 +4,7 @@ notes n todo (yea maybe i'll adapt to the github issues way of doing things... e
 
 todo:
 
-- do fileexist for all configs before running them in cvarreversion / delete reversion file after exec so no accidental 2nd run revert with a bad file
-
-- gosub,exitsub isn't working for the msgboxes inside cvar reversion wtf
+- see if mat_monitor_gamma affects win10 fullscreen+optimizations/dot color, and if so enforce value
 
 - sv_cheats needs to be on while reverting
 
@@ -15,6 +13,8 @@ slightly less important:
 - test mouse_event + A_Cursor for latency vs real mouse
 
 - turn dot white somehow in case that allows us to compile with hdr (hdr bleeds color and screws up pixel color detection). may need to use ambiguous string comparison for less precise color detection eg. 0xE0* vs 0xE07E08
+
+- do fileexist for all configs before running them in cvarreversion / delete reversion file after exec so no accidental 2nd run revert with a bad file
 
 
 

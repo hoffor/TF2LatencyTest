@@ -30,7 +30,7 @@ SetWorkingDir,% A_ScriptDir
 ; get environment info, issue warnings
 
 
-version := "1.0.0"
+version := "1.1.0"
 if ("WIN_7" != OSVersion := A_OSVersion) {
 	OSVersion := "Windows " . OSVersion
 	win10note := "NOTE: System is not running Windows 7, so visual styles and desktop composition cannot be disabled. This means results can be up to 40% (avg ~28%) higher than the values you'd get in Win7. Regardless of how bad that sounds, they should still be good 'ballpark' estimates of your game's performance.`n`n"

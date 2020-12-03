@@ -68,7 +68,16 @@ it told me when i tried building cubemaps that the skybox resolution or properti
 
 google sheets info for myself:
 
-THIS IS THE ONLY WAY TO COPY PROPERLY: to copy values, ensure all cells in source sheet have number format "plain text". then select whole row here and ctrl+c and ctrl+v into new sheet that ALSO has number formatting "plain text". after pasting, click the paste icon next to the cells and use "values only"
+THIS IS THE ONLY WAY TO COPY PROPERLY: to copy values, ensure all cells in source sheet have number format "plain text" ...
+
+NEW METHOD (cuz i prob messed up badly writing the old one for some reason): select results cell contents and ctrl+c and ctrl+v onto new sheet's bottom-most row and left-most cell (paste onto the cell, not into, as in don't double click the cell and 'write' it in there). click the paste icon in the bottom right of the cell now and select 'paste as values only' to keep the new sheet's formatting intact
+
+now go to menu bar > Data > Split text to columns > Custom separator and type this (quotes included): ","
+
+apply and remove extra quote from last column and remove column header text from first colomn (results, cpu, gpu etc). add in submission comments if any
+
+
+OLD METHOD (no idea why this is here, doesn't work, lolwut): [...] then select whole row here and ctrl+c and ctrl+v into new sheet that ALSO has number formatting "plain text". after pasting, click the paste icon next to the cells and use "values only"
 
 
 --------

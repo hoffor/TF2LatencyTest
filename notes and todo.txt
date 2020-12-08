@@ -4,11 +4,25 @@ notes n todo (yea maybe i'll adapt to the github issues way of doing things... e
 
 todo:
 
-- see if mat_monitor_gamma affects win10 fullscreen+optimizations/dot color, and if so enforce value
+#1 - i need another confirmation that a 15.67ms system timer doesn't affect or constrain latency readings... i feel like i debunked it but i forget LOL
 
-- sv_cheats needs to be on while reverting
+#2 - check pixelgetcolor rates while many bots are present yet idle, and also while they are hammering cpu. i have reason to believe pgc might run slower than we need during loads like this
 
-slightly less important:
+#3 - see if we can use STVs to record a demo with activity but still allow user to provide input for latency testing. this would remove the bot cpu hit which is potentially a huge variable
+
+- see if mat_monitor_gamma affects win10 fullscreen+optimizations/dot color, and if so enforce value (aka make sure everyone can actually run the script)
+
+- sv_cheats needs to be on while reverting cvars
+
+
+secondary todo:
+
+- dynamically record and replay a demo of the scene and get timedemo fps (don't record while latency testing). purpose for dynamic recording is so that it can reliably be played between tf2/tc2 versions. note: i've since learned that timedemo frame count reports and duration reports can be very very very inaccurate, specifically at lower tick rates. to get at least consistent frame count reports i'll have to force 66 ticks during recording
+
+
+
+maybe later todo:
+
 
 - test mouse_event + A_Cursor for latency vs real mouse
 
@@ -16,16 +30,9 @@ slightly less important:
 
 - do fileexist for all configs before running them in cvarreversion / delete reversion file after exec so no accidental 2nd run revert with a bad file
 
-
-
-maybe later:
-
-
-- dynamically record and replay a demo of the scene and get timedemo fps (don't record while latency testing)
-
 - before spreadsheet creation, see if user has mods in /custom. consider grabbing video cvars
 
-- consider giving the option to enable faster system timer during test. test latencies and performance with it on
+- consider giving the option to enable faster system timer during test. test latencies and performance with it on (dumb idea)
 
 - update readme about how to access win10 power options
 

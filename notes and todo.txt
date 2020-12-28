@@ -4,7 +4,7 @@ notes n todo (yea maybe i'll adapt to the github issues way of doing things... e
 
 todo:
 
-#1 - i need another confirmation that a 15.67ms system timer doesn't affect or constrain latency readings... i feel like i debunked it but i forget LOL
+#1 - 
 
 #2 - check pixelgetcolor rates while many bots are present yet idle, and also while they are hammering cpu. i have reason to believe pgc might run slower than we need during loads like this
 
